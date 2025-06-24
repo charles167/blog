@@ -2,14 +2,21 @@ import React from 'react'
 import { assets } from '../../assets/assets'
 import { Outlet, useNavigate } from 'react-router-dom'
 import Siderbar from '../../components/admin/Siderbar'
+import { useAppContext } from '../../context/AppContext'
 
 const Layout = () => {
 
-    const navigate = useNavigate()
 
-    const logout = ()=>{
-        navigate('/')
-    }
+
+    const {axios,setToken,navigate}= useAppContext()
+
+    const logout = () => {
+  localStorage.removeItem('token');
+  axios.defaults.headers.common['Authorization'] = null; // ✅ fixed spelling
+  setToken(null);
+  navigate('/');
+};
+
 
 
   return (

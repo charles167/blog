@@ -1,13 +1,31 @@
-import React, { useState } from 'react'
-import { blogCategories, blog_data } from '../assets/assets'
-import { motion } from 'framer-motion'
-import BlogCard from '../components/BlogCard' // Adjust the path based on your folder structure
+import React, { useState } from 'react';
+import { blogCategories } from '../assets/assets';
+import { motion } from 'framer-motion';
+import BlogCard from '../components/BlogCard';
+import { useAppContext } from '../context/AppContext';
 
 const Bloglist = () => {
-  const [menu, setMenu] = useState("All")
+  const [menu, setMenu] = useState("All");
+  const { blogs = [], input } = useAppContext(); // ✅ default empty array for safety
+
+  // ✅ Filter based on input
+  const filteredBlogs = () => {
+    if (!input?.trim()) return blogs;
+
+    return blogs.filter(blog =>
+      blog.title?.toLowerCase().includes(input.toLowerCase()) ||
+      blog.category?.toLowerCase().includes(input.toLowerCase())
+    );
+  };
+
+  // ✅ Filter by selected category
+  const displayedBlogs = filteredBlogs().filter(
+    blog => menu === "All" || blog.category?.toLowerCase() === menu.toLowerCase()
+  );
 
   return (
     <div>
+      {/* Category Tabs */}
       <div className='flex justify-center gap-4 sm:gap-8 my-10 relative'>
         {blogCategories.map((item) => (
           <div key={item} className='relative'>
@@ -30,15 +48,20 @@ const Bloglist = () => {
         ))}
       </div>
 
+      {/* Blog Cards */}
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 mb-8 sm:mx-16 xl:mx-40'>
-        {blog_data
-          .filter((blog) => menu === "All" || blog.category === menu)
-          .map((blog) => (
+        {displayedBlogs.length > 0 ? (
+          displayedBlogs.map((blog) => (
             <BlogCard key={blog._id} blog={blog} />
-          ))}
+          ))
+        ) : (
+          <p className="text-center col-span-full text-gray-400">
+            No blogs found for this filter.
+          </p>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Bloglist
+export default Bloglist;
